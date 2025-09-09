@@ -1,11 +1,7 @@
 package br.edu.atitus.greeting_service.controllers;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import br.edu.atitus.greeting_service.configs.GreetingConfig;
 
@@ -13,18 +9,13 @@ import br.edu.atitus.greeting_service.configs.GreetingConfig;
 @RequestMapping("greeting")
 public class GreetingController {
 	
-	//@Value("${greeting-service.greeting}")
-	//private String greeting;
-	//@Value("${greeting-service.default-name}")
-	//private String defaultName;
-	
 	private final GreetingConfig config;
 	
 	public GreetingController(GreetingConfig config) {
-		super();
 		this.config = config;
 	}
 
+	// GET com RequestParam (já existente)
 	@GetMapping
 	public ResponseEntity<String> greet(
 			@RequestParam(required = false) String name){
@@ -35,4 +26,31 @@ public class GreetingController {
 		return ResponseEntity.ok(textReturn);
 	}
 
+	// GET com PathVariable
+	@GetMapping("/{name}")
+	public ResponseEntity<String> greetWithPath(@PathVariable String name) {
+		String textReturn = String.format("%s, %s!!!", config.getGreeting(), name);
+		return ResponseEntity.ok(textReturn);
+	}
+
+	// POST recebendo JSON
+	@PostMapping
+	public ResponseEntity<String> greetPost(@RequestBody Person person) {
+		String name = person.getName() != null ? person.getName() : config.getDefaultName();
+		String textReturn = String.format("%s, %s!!!", config.getGreeting(), name);
+		return ResponseEntity.ok(textReturn);
+	}
+
+	// Classe auxiliar para JSON
+	public static class Person {
+		private String name;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
 }
